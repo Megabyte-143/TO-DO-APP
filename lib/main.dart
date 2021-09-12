@@ -1,25 +1,33 @@
-import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import "package:firebase_core/firebase_core.dart";
+import "package:flutter/material.dart";
+import "package:provider/provider.dart";
 
-import 'home_page_screen.dart';
+import "api/Firebase_api.dart";
 
-void main() {
-  runApp(const MyApp());
+import "home_page_screen.dart";
+
+import "model/todo.dart";
+
+import "provider/todo_provider.dart";
+
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
+  runApp(MyApp());
 }
 
+/// Root Widget of the App
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Todo App',
-      theme: ThemeData(
-        
-        primarySwatch: Colors.grey,
-      ),
-      home: const HomePageScreen(),
-    );
-  }
+  Widget build(BuildContext context) => MaterialApp(
+    debugShowCheckedModeBanner: false,
+    title: "Todo App",
+    theme: ThemeData(
+      backgroundColor: Colors.grey.shade400,
+      primarySwatch: Colors.grey,
+    ),
+    home: HomePageScreen(),
+  );
 }
-

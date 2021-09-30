@@ -1,9 +1,9 @@
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
-import "../model/todo.dart";
+
 import "../provider/todo_provider.dart";
 
-import 'utils.dart';
+import "utils.dart";
 
 class TaskWidget extends StatefulWidget {
   const TaskWidget({
@@ -11,24 +11,29 @@ class TaskWidget extends StatefulWidget {
     required this.height,
     required this.width,
     required this.index,
-    required this.todos,
+    required this.todoID,
+    required this.todoStatus,
+    required this.todoTitle,
   }) : super(key: key);
   final double height;
   final double width;
   final int index;
-  final List<Todo> todos;
+  final bool todoStatus;
+  final String todoTitle;
+  final String todoID;
+
   @override
   _TaskWidgetState createState() => _TaskWidgetState();
 }
 
 class _TaskWidgetState extends State<TaskWidget> {
   TextEditingController _textController = TextEditingController();
-  bool _isEnabled = false;
+  bool? _isEnabled;
 
   @override
   void initState() {
-    super.initState();
     _textController = TextEditingController();
+    super.initState();
   }
 
   @override
@@ -39,36 +44,25 @@ class _TaskWidgetState extends State<TaskWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Todo> todos = widget.todos;
-    final int i = widget.index;
-
-    void deleteTodo(BuildContext context, Todo todo) {
-      final TodosProvider provider = Provider.of<TodosProvider>(
-        context,
-        listen: false,
-      );
-      provider.deleteTodo(todo);
-      Utils.showSnackBar(context, "Delted the Task");
+    final TodosProvider provider = Provider.of<TodosProvider>(
+      context,
+      listen: false,
+    );
+    void deleteTodo(String todoID) {
+      provider.deleteTodo(todoID);
+      Utils.showSnackBar(context, "Deleted the Task");
     }
 
-    void todoStatus(BuildContext context, Todo todo) {
-      final TodosProvider provider = Provider.of<TodosProvider>(
-        context,
-        listen: false,
-      );
-      final bool isComplete = provider.todoStatus(todo);
+    void todoStatus(String todoID, bool todoStatus) {
+      provider.todoStatus(todoID, todoStatus);
       Utils.showSnackBar(
         context,
-        isComplete ? "Task marked Completed" : "Task marked Incompleted",
+        !todoStatus ? "Task marked Completed" : "Task marked Incompleted",
       );
     }
 
-    void saveTodo(String value, Todo todo) {
-      final TodosProvider provider = Provider.of<TodosProvider>(
-        context,
-        listen: false,
-      );
-      provider.updateTodo(value, todo);
+    void saveTodo(String value, String todoID) {
+      provider.updateTodo(value, todoID);
     }
 
     return Material(
@@ -102,26 +96,28 @@ class _TaskWidgetState extends State<TaskWidget> {
           children: <Widget>[
             IconButton(
               onPressed: () {
-                todoStatus(context, todos[i]);
+                todoStatus(
+                  widget.todoID,
+                  widget.todoStatus,
+                );
               },
               icon: Icon(
                 Icons.check_circle,
-                color: todos[i].isComplete ? Colors.green : null,
+                color: widget.todoStatus ? Colors.green : null,
               ),
             ),
             Expanded(
               child: TextField(
                 decoration: InputDecoration(
-                  hintText: todos[i].title,
+                  hintText: widget.todoTitle,
                   border: InputBorder.none,
                 ),
                 controller: _textController,
                 enabled: _isEnabled,
                 onSubmitted: (String value) {
                   setState(() {
-                    saveTodo(value, todos[i]);
+                    saveTodo(value, widget.todoID);
                     _isEnabled = false;
-                    _textController.clear();
                   });
                 },
               ),
@@ -145,7 +141,7 @@ class _TaskWidgetState extends State<TaskWidget> {
                     Icons.delete,
                   ),
                   onPressed: () {
-                    deleteTodo(context, todos[i]);
+                    deleteTodo(widget.todoID);
                   },
                 ),
               ],

@@ -1,6 +1,8 @@
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
+
 import "../model/todo.dart";
+
 import "../provider/todo_provider.dart";
 
 class AddingTask extends StatelessWidget {
@@ -17,7 +19,7 @@ class AddingTask extends StatelessWidget {
   Widget build(BuildContext context) {
     void addTodo(String title) {
       final todo = Todo(
-        id: DateTime.now().toIso8601String(),
+        todoID: DateTime.now().toIso8601String(),
         title: title,
         createdTime: DateTime.now(),
       );

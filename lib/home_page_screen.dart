@@ -36,7 +36,7 @@ class HomePageScreen extends StatelessWidget {
             MainView(
               height: height,
               width: width,
-            )
+            ),
           ],
         ),
       ),

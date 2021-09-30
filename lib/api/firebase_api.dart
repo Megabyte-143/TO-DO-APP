@@ -1,48 +1,36 @@
 import "package:cloud_firestore/cloud_firestore.dart";
-import 'package:todo_app/widgets/utils.dart';
 
 import "../model/todo.dart";
 
 class FirebaseApi {
-  static Future<String> createTodo(Todo todo) async {
-    final docTodo = FirebaseFirestore.instance.collection("todo");
-    todo.id = docTodo.id;
-    await docTodo.add(todo.toJson());
-    return docTodo.id;
+
+  static Future<void> addTodo(Todo todo) async {
+    await FirebaseFirestore.instance.collection("todos").doc(todo.todoID).set({
+      "createdTime": todo.createdTime,
+      "todoTitle": todo.title,
+      "todoStatus": todo.isComplete,
+      "todoID": todo.todoID,
+    });
   }
 
-  // static Stream<List<Todo>> readTodos() => FirebaseFirestore.instance
-  //     .collection('todo')
-  //     .orderBy(TodoField.createdTime, descending: true)
-  //     .snapshots()
-  //     .transform(Utils.transformer(Todo.fromJson));
-
-  // static Stream<List<Todo>> readTodos() {
-  //   final Stream<QuerySnapshot> stream = FirebaseFirestore.instance
-  //       .collection("todo")
-  //       .orderBy(TodoField.createdTime, descending: true)
-  //       .snapshots();
-  //   return stream.map(
-  //     (event) => event.docs
-  //         .map(
-  //           (e) => Todo(
-  //             createdTime: e.data()["createdTime"] as DateTime,
-  //             title: e.data()["title"] as String,
-  //             id: e.id,
-  //             isComplete: e.data()["isComplete"] as bool,
-  //           ),
-  //         )
-  //         .toList(),
-  //   );
-  // }
-
-  static Future updateTodo(Todo todo) async {
-    final docTodo = FirebaseFirestore.instance.collection("todo").doc(todo.id);
-    await docTodo.update(todo.toJson());
+  static Future<void> updateTodoStatus(
+    bool todoStatus,
+    String todoID,
+  ) async {
+    await FirebaseFirestore.instance.collection("todos").doc(todoID).update({
+      "todoStatus": !todoStatus,
+    });
+  }
+  static Future<void> updateTodoText(
+   String newValue,
+    String todoID,
+  ) async {
+    await FirebaseFirestore.instance.collection("todos").doc(todoID).update({
+      "title": newValue,
+    });
   }
 
-  static Future deleteTodo(Todo todo) async {
-    final docTodo = FirebaseFirestore.instance.collection("todo").doc(todo.id);
-    await docTodo.delete();
+  static Future<void> deleteTodo(String todoID) async {
+    await FirebaseFirestore.instance.collection("todos").doc(todoID).delete();
   }
 }

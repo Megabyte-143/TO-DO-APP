@@ -82,6 +82,7 @@ class AddingTask extends StatelessWidget {
               child: InkWell(
                 onTap: () {
                   addTodo(textController.text);
+                  textController.clear();
                 },
                 child: Container(
                   height: height * 0.1,

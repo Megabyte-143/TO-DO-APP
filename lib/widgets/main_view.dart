@@ -20,9 +20,6 @@ class MainView extends StatefulWidget {
 class _MainViewState extends State<MainView> {
   @override
   Widget build(BuildContext context) {
-   
-    
-
     return Container(
       height: widget.height * 0.7,
       padding: EdgeInsets.only(
@@ -43,26 +40,42 @@ class _MainViewState extends State<MainView> {
           } else if (snapshot.hasData) {
             final List<QueryDocumentSnapshot<Map<String, dynamic>>> list =
                 snapshot.data!.docs;
-            return ListView.builder(
-              shrinkWrap: true,
-              itemBuilder: (
-                BuildContext ctx,
-                int i,
-              ) {
-                return TaskWidget(
-                  height: widget.height,
-                  width: widget.width,
-                  index: i,
-                  todoID: list[i]["todoID"].toString(),
-                  todoStatus: list[i]["todoStatus"] as bool,
-                  todoTitle: list[i]["todoTitle"].toString(),
-                );
-              },
-              itemCount: list.length,
-            );
+            return list.isEmpty
+                ? const Center(
+                    child: Text(
+                      "Add Some TODOs",
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.black,
+                      ),
+                    ),
+                  )
+                : ListView.builder(
+                    shrinkWrap: true,
+                    itemBuilder: (
+                      BuildContext ctx,
+                      int i,
+                    ) {
+                      return TaskWidget(
+                        height: widget.height,
+                        width: widget.width,
+                        index: i,
+                        todoID: list[i]["todoID"].toString(),
+                        todoStatus: list[i]["todoStatus"] as bool,
+                        todoTitle: list[i]["todoTitle"].toString(),
+                      );
+                    },
+                    itemCount: list.length,
+                  );
           } else {
             return const Center(
-              child: Text("No to dos"),
+              child: Text(
+                "No to dos",
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.black,
+                ),
+              ),
             );
           }
         },

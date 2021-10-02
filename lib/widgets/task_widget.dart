@@ -27,18 +27,20 @@ class TaskWidget extends StatefulWidget {
 }
 
 class _TaskWidgetState extends State<TaskWidget> {
-  TextEditingController _textController = TextEditingController();
-  bool? _isEnabled;
+  TextEditingController _editingController = TextEditingController();
+  GlobalKey<ScaffoldState> _profileScaffoldKey = new GlobalKey<ScaffoldState>();
+
+  bool _isEditingText = false;
 
   @override
   void initState() {
-    _textController = TextEditingController();
     super.initState();
+    _editingController = TextEditingController(text: widget.todoTitle);
   }
 
   @override
   void dispose() {
-    _textController.dispose();
+    _editingController.dispose();
     super.dispose();
   }
 
@@ -48,22 +50,6 @@ class _TaskWidgetState extends State<TaskWidget> {
       context,
       listen: false,
     );
-    void deleteTodo(String todoID) {
-      provider.deleteTodo(todoID);
-      Utils.showSnackBar(context, "Deleted the Task");
-    }
-
-    void todoStatus(String todoID, bool todoStatus) {
-      provider.todoStatus(todoID, todoStatus);
-      Utils.showSnackBar(
-        context,
-        !todoStatus ? "Task marked Completed" : "Task marked Incompleted",
-      );
-    }
-
-    void saveTodo(String value, String todoID) {
-      provider.updateTodo(value, todoID);
-    }
 
     return Material(
       elevation: 4,
@@ -96,9 +82,15 @@ class _TaskWidgetState extends State<TaskWidget> {
           children: <Widget>[
             IconButton(
               onPressed: () {
-                todoStatus(
+                provider.todoStatus(
                   widget.todoID,
                   widget.todoStatus,
+                );
+                Utils.showSnackBar(
+                  context,
+                  !widget.todoStatus
+                      ? "Task marked Completed"
+                      : "Task marked Incompleted",
                 );
               },
               icon: Icon(
@@ -107,20 +99,28 @@ class _TaskWidgetState extends State<TaskWidget> {
               ),
             ),
             Expanded(
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: widget.todoTitle,
-                  border: InputBorder.none,
-                ),
-                controller: _textController,
-                enabled: _isEnabled,
-                onSubmitted: (String value) {
-                  setState(() {
-                    saveTodo(value, widget.todoID);
-                    _isEnabled = false;
-                  });
-                },
-              ),
+              child: _isEditingText
+                  ? Form(
+                      key: _profileScaffoldKey,
+                      child: TextField(
+                        onSubmitted: (newValue) {
+                          setState(() {
+                            provider.updateTodo(newValue, widget.todoID);
+                            _isEditingText = false;
+                          });
+                        },
+                        keyboardType: TextInputType.text,
+                        // autofocus: true,
+                        controller: _editingController,
+                      ),
+                    )
+                  : Text(
+                      widget.todoTitle,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 18.0,
+                      ),
+                    ),
             ),
             Row(
               mainAxisSize: MainAxisSize.min,
@@ -132,7 +132,7 @@ class _TaskWidgetState extends State<TaskWidget> {
                   ),
                   onPressed: () {
                     setState(() {
-                      _isEnabled = true;
+                      _isEditingText = true;
                     });
                   },
                 ),
@@ -141,7 +141,8 @@ class _TaskWidgetState extends State<TaskWidget> {
                     Icons.delete,
                   ),
                   onPressed: () {
-                    deleteTodo(widget.todoID);
+                    provider.deleteTodo(widget.todoID);
+                    Utils.showSnackBar(context, "Deleted the Task");
                   },
                 ),
               ],
